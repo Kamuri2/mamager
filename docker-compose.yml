@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+  # 1. Tu API Automática (Hasura)
+  graphql-engine:
+    image: hasura/graphql-engine:v2.35.0
+    ports:
+      - "8081:8080"
+    depends_on:
+      - postgres
+      - mssql
+    environment:
+      HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:pass@postgres:5432/postgres
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
+      HASURA_GRAPHQL_ADMIN_SECRET: admin_examen
+
+  # 2. El cerebro interno de Hasura
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_PASSWORD: pass
+
+  # 3. Tu Base de Datos del Examen (MSSQL)
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - "1433:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Examen_Password_123!
