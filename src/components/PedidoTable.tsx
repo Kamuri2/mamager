@@ -1,4 +1,4 @@
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import { REMOVE_PEDIDO, GET_PEDIDOS } from '@/graphql/operations';
 import { showXPToast } from './XPToast';
 

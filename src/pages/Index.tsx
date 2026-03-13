@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client/react';
 import { GET_PEDIDOS } from '@/graphql/operations';
 import { XPWindow } from '@/components/XPWindow';
 import { PedidoTable } from '@/components/PedidoTable';

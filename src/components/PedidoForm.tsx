@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import { CREATE_PEDIDO, UPDATE_PEDIDO, GET_PEDIDOS } from '@/graphql/operations';
 import { showXPToast } from './XPToast';
 
