@@ -30,7 +30,7 @@ interface Pedido {
 const Index = () => {
   const [view, setView] = useState<ViewMode>('list');
   const [editingPedido, setEditingPedido] = useState<Pedido | null>(null);
-  const { data, loading, error } = useQuery(GET_PEDIDOS);
+  const { data, loading, error } = useQuery<{ pedidos: Pedido[] }>(GET_PEDIDOS);
 
   const handleEdit = (pedido: Pedido) => {
     setEditingPedido(pedido);
