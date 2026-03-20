@@ -1,46 +1,78 @@
 import { gql } from '@apollo/client';
 
+// 1. QUERY PARA LA TABLA (Trae los nombres de los catálogos)
 export const GET_PEDIDOS = gql`
-  query GetPedidos {
+  query ObtenerPedidos {
     pedidos {
       id
       nombre_cliente
       telefono
       direccion_entrega
-      ciudad
       codigo_postal
-      restaurante
       producto
-      categoria_comida
       cantidad
       precio
-      metodo_pago
       propina
       instrucciones_entrega
+      # Campos de relación (IDs)
+      ciudadId
+      restauranteId
+      categoriaId
+      metodoPagoId
+      # Objetos de relación para mostrar el texto en la tabla
+      ciudad {
+        nombre
+      }
+      restaurante {
+        nombre
+      }
+      categoria {
+        nombre
+      }
+      metodoPago {
+        nombre
+      }
     }
   }
 `;
 
 export const CREATE_PEDIDO = gql`
-  mutation CreatePedido($input: CreatePedidoInput!) {
-    createPedido(createPedidoInput: $input) {
+  mutation RegistrarPedido($input: CreatePedidoInput!) {
+    createPedido(input: $input) {  # <--- AQUÍ: Debe decir 'input:', NO 'data:'
       id
+      nombre_cliente
     }
   }
 `;
 
 export const UPDATE_PEDIDO = gql`
-  mutation UpdatePedido($id: Int!, $input: UpdatePedidoInput!) {
-    updatePedido(id: $id, updatePedidoInput: $input) {
+  mutation ActualizarPedido($id: Int!, $input: UpdatePedidoInput!) {
+    updatePedido(id: $id, input: $input) { # <--- AQUÍ TAMBIÉN: 'input:', NO 'data:'
       id
+      nombre_cliente
     }
   }
-`;
+`;// 3. MUTACIÓN PARA ACTUALIZAR
 
-export const REMOVE_PEDIDO = gql`
-  mutation RemovePedido($id: Int!) {
-    removePedido(id: $id) {
+
+// 4. QUERY PARA LOS SELECTS DEL FORMULARIO
+export const GET_FORM_CATALOGS = gql`
+  query ObtenerCatalogosFormulario {
+    ciudades: catalogCiudads {
       id
+      nombre
+    }
+    restaurantes: catalogRestaurantes {
+      id
+      nombre
+    }
+    categorias: catalogCategorias {
+      id
+      nombre
+    }
+    metodosPago: catalogMetodoPagos {
+      id
+      nombre
     }
   }
 `;

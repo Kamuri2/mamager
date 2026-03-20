@@ -1,22 +1,21 @@
-import { useMutation } from '@apollo/client/react';
-import { REMOVE_PEDIDO, GET_PEDIDOS } from '@/graphql/operations';
-import { showXPToast } from './XPToast';
+// src/components/PedidoTable.tsx
+import { Edit2 } from 'lucide-react';
 
 interface Pedido {
   id: number;
   nombre_cliente: string;
   telefono: string;
   direccion_entrega: string;
-  ciudad: string;
   codigo_postal: number;
-  restaurante: string;
   producto: string;
-  categoria_comida: string;
   cantidad: number;
   precio: number;
-  metodo_pago: string;
   propina: number;
-  instrucciones_entrega: string;
+  // Relaciones anidadas de GraphQL
+  ciudad?: { nombre: string };
+  restaurante?: { nombre: string };
+  categoria?: { nombre: string };
+  metodoPago?: { nombre: string };
 }
 
 interface PedidoTableProps {
@@ -25,84 +24,81 @@ interface PedidoTableProps {
 }
 
 export function PedidoTable({ pedidos, onEdit }: PedidoTableProps) {
-  const [removePedido] = useMutation(REMOVE_PEDIDO, {
-    refetchQueries: [{ query: GET_PEDIDOS }],
-    onCompleted: () => showXPToast('🗑️ Pedido eliminado correctamente'),
-    onError: (err) => showXPToast(`❌ Error: ${err.message}`),
-  });
-
-  const handleDelete = (id: number) => {
-    if (window.confirm('¿Estás seguro de que deseas eliminar este pedido?')) {
-      removePedido({ variables: { id } });
-    }
-  };
+  
+  if (pedidos.length === 0) {
+    return (
+      <div className="bg-white border border-neutral-300 p-8 text-center shadow-inner">
+        <p className="text-sm text-neutral-500 italic">No hay pedidos registrados en el sistema de Fidel...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="overflow-x-auto xp-scroll" style={{ maxHeight: '60vh' }}>
-      <table className="xp-table">
+    <div className="overflow-x-auto border border-neutral-400 bg-white shadow-inner">
+      <table className="w-full text-left border-collapse min-w-[1100px]">
         <thead>
-          <tr>
-            <th>ID</th>
-            <th>Cliente</th>
-            <th>Teléfono</th>
-            <th>Dirección</th>
-            <th>Ciudad</th>
-            <th>CP</th>
-            <th>Restaurante</th>
-            <th>Producto</th>
-            <th>Categoría</th>
-            <th>Cant.</th>
-            <th>Precio</th>
-            <th>Pago</th>
-            <th>Propina</th>
-            <th>Instrucciones</th>
-            <th>Acciones</th>
+          <tr className="bg-[#0055E5] text-white text-[11px] uppercase tracking-wider">
+            <th className="px-3 py-2 border-r border-blue-400 font-bold">ID</th>
+            <th className="px-3 py-2 border-r border-blue-400 font-bold">Cliente</th>
+            <th className="px-3 py-2 border-r border-blue-400 font-bold">Ciudad</th>
+            <th className="px-3 py-2 border-r border-blue-400 font-bold">Restaurante</th>
+            <th className="px-3 py-2 border-r border-blue-400 font-bold">Categoría</th>
+            <th className="px-3 py-2 border-r border-blue-400 font-bold">Producto</th>
+            <th className="px-3 py-2 border-r border-blue-400 font-bold">Cant.</th>
+            <th className="px-3 py-2 border-r border-blue-400 font-bold">Total</th>
+            <th className="px-3 py-2 border-r border-blue-400 font-bold">Pago</th>
+            <th className="px-3 py-2 font-bold text-center">Acciones</th>
           </tr>
         </thead>
-        <tbody>
-          {pedidos.map((p) => (
-            <tr key={p.id}>
-              <td>{p.id}</td>
-              <td>{p.nombre_cliente}</td>
-              <td>{p.telefono}</td>
-              <td className="max-w-[120px] truncate">{p.direccion_entrega}</td>
-              <td>{p.ciudad}</td>
-              <td>{p.codigo_postal}</td>
-              <td>{p.restaurante}</td>
-              <td>{p.producto}</td>
-              <td>{p.categoria_comida}</td>
-              <td>{p.cantidad}</td>
-              <td>${p.precio?.toFixed(2)}</td>
-              <td>{p.metodo_pago}</td>
-              <td>${p.propina?.toFixed(2)}</td>
-              <td className="max-w-[120px] truncate">{p.instrucciones_entrega}</td>
-              <td>
-                <div className="flex gap-1">
+        <tbody className="text-[12px] text-neutral-800">
+          {pedidos.map((p) => {
+            // Calculamos el total de forma segura
+            const total = (Number(p.precio) * Number(p.cantidad)) + Number(p.propina || 0);
+            
+            return (
+              <tr key={p.id} className="border-b border-neutral-200 hover:bg-[#FFFFE1] transition-colors">
+                <td className="px-3 py-2 border-r border-neutral-200 font-mono text-[#000080]">#{p.id}</td>
+                <td className="px-3 py-2 border-r border-neutral-200 font-bold">{p.nombre_cliente}</td>
+                
+                {/* ✅ Relaciones con fallback para que no salga vacío */}
+                <td className="px-3 py-2 border-r border-neutral-200">{p.ciudad?.nombre || 'N/A'}</td>
+                <td className="px-3 py-2 border-r border-neutral-200 text-blue-800">{p.restaurante?.nombre || 'N/A'}</td>
+                <td className="px-3 py-2 border-r border-neutral-200 font-semibold text-orange-700">
+                  {p.categoria?.nombre || 'N/A'}
+                </td>
+                
+                <td className="px-3 py-2 border-r border-neutral-200">{p.producto}</td>
+                <td className="px-3 py-2 border-r border-neutral-200 text-center">{p.cantidad}</td>
+                
+                <td className="px-3 py-2 border-r border-neutral-200 font-bold text-green-700">
+                  ${total.toFixed(2)}
+                </td>
+                
+                <td className="px-3 py-2 border-r border-neutral-200">
+                  <span className="bg-neutral-100 px-1.5 py-0.5 border border-neutral-300 rounded-sm text-[10px]">
+                    {p.metodoPago?.nombre || 'Efectivo'}
+                  </span>
+                </td>
+
+                <td className="px-3 py-1 text-center">
                   <button
-                    className="xp-btn xp-btn-blue text-[11px] px-3 py-1"
                     onClick={() => onEdit(p)}
+                    className="xp-btn xp-btn-green px-3 py-1 text-[10px] flex items-center gap-1 mx-auto"
                   >
-                    EDIT
+                    <Edit2 size={10} /> EDITAR
                   </button>
-                  <button
-                    className="xp-btn xp-btn-red text-[11px] px-3 py-1"
-                    onClick={() => handleDelete(p.id)}
-                  >
-                    PURGE
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))}
-          {pedidos.length === 0 && (
-            <tr>
-              <td colSpan={15} className="text-center py-8 text-muted-foreground">
-                No hay pedidos registrados.
-              </td>
-            </tr>
-          )}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
+      
+      {/* Footer estilo Barra de Estado */}
+      <div className="bg-[#E0DFE3] border-t border-neutral-400 px-3 py-1 flex justify-between items-center text-[10px] text-neutral-600">
+        <span>Total de pedidos: {pedidos.length}</span>
+        <span className="italic font-bold">Comida Pedidos</span>
+      </div>
     </div>
   );
 }
